@@ -19,14 +19,14 @@ public class Database {
     public static String getMethod(int index) throws IllegalArgumentException {
         if (checkIfEmpty(index)) {
             throw new IllegalArgumentException();
+        } else {
+            return database[index];
         }
-        return database[index];
     }
 
     public static void deleteMethod(int index) {
         database[index] = null;
     }
-
 
     private static boolean checkIfEmpty(int index) {
         return Objects.equals(database[index], null);

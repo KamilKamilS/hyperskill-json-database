@@ -160,6 +160,9 @@ files:
 - name: src/server/Database.java
   visible: true
   learner_created: true
+- name: src/server/DatabaseDao.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/348/implement#comment
 status: Unchecked
 record: -1
