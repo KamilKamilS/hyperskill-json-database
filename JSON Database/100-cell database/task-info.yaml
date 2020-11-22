@@ -145,24 +145,22 @@ files:
         }
     }
   learner_created: false
-- name: src/server/Main.java
-  visible: true
-  text: |
-    package server;
-
-    public class Main {
-
-        public static void main(String[] args) {
-            System.out.println("Hello, world!");
-        }
-    }
-  learner_created: false
 - name: src/server/Database.java
   visible: true
   learner_created: true
 - name: src/server/DatabaseDao.java
   visible: true
   learner_created: true
+- name: src/server/Main.java
+  visible: true
+  learner_created: true
+- name: src/server/ClientInterface.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/348/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/65/stages/348/implement">JetBrains
+    Academy</a>
+  time: Sun, 22 Nov 2020 22:58:41 UTC
 record: -1

@@ -10,11 +10,10 @@ public class DatabaseDao {
         return "ERROR";
     }
 
-    public String getMethod(int index, String content) {
+    public String getMethod(int index) {
         if (validIndex(index)) {
             try {
-                Database.getMethod(index);
-                return "OK";
+                return Database.getMethod(index);
             }catch (Exception e) {
                 return "ERROR";
             }
@@ -31,7 +30,7 @@ public class DatabaseDao {
     }
 
     private boolean validIndex(int index) {
-        if (index >= 1 || index <= 100) {
+        if (index >= 0 && index <= 99) {
             return true;
         }
         return false;
