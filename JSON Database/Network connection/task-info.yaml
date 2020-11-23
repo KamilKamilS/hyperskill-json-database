@@ -92,6 +92,124 @@ files:
         }
     }
   learner_created: false
+- name: src/server/Database.java
+  visible: true
+  text: |
+    package server;
+
+
+    import java.util.Objects;
+
+    public class Database {
+
+        private static String[] database;
+
+        static {
+            database = new String[100];
+        }
+
+
+        public static void setMethod(int index, String content) {
+            database[index] = content;
+        }
+
+        public static String getMethod(int index) throws IllegalArgumentException {
+            if (checkIfEmpty(index)) {
+                throw new IllegalArgumentException();
+            } else {
+                return database[index];
+            }
+        }
+
+        public static void deleteMethod(int index) {
+            database[index] = null;
+        }
+
+        private static boolean checkIfEmpty(int index) {
+            return Objects.equals(database[index], null);
+        }
+
+
+    }
+  learner_created: true
+- name: src/server/DatabaseDao.java
+  visible: true
+  text: |
+    package server;
+
+    public class DatabaseDao {
+
+        public String setMethod(int index, String content) {
+            if (validIndex(index)) {
+                Database.setMethod(index, content);
+                return "OK";
+            }
+            return "ERROR";
+        }
+
+        public String getMethod(int index) {
+            if (validIndex(index)) {
+                try {
+                    return Database.getMethod(index);
+                }catch (Exception e) {
+                    return "ERROR";
+                }
+            }
+            return "ERROR";
+        }
+
+        public String deleteMethod(int index) {
+            if (validIndex(index)) {
+                Database.deleteMethod(index);
+                return "OK";
+            }
+            return "ERROR";
+        }
+
+        private boolean validIndex(int index) {
+            if (index >= 0 && index <= 99) {
+                return true;
+            }
+            return false;
+        }
+
+    }
+  learner_created: true
+- name: src/server/ClientInterface.java
+  visible: true
+  text: |
+    package server;
+
+    import server.Database;
+    import server.DatabaseDao;
+
+    public class ClientInterface {
+
+        private static DatabaseDao databaseDao;
+
+        static {
+            databaseDao = new DatabaseDao();
+        }
+
+        public static String getMethodFromInput(String input) {
+            String[] inputArray = input.split(" ", 3);
+            String method = inputArray[0];
+            int index = Integer.valueOf(inputArray[1]) - 1;
+            switch (method) {
+                case "get":
+                    return databaseDao.getMethod(index);
+                case "set":
+
+                    return databaseDao.setMethod(index, inputArray[2]);
+                case "delete":
+                    return databaseDao.deleteMethod(index);
+                default:
+                    return "ERROR";
+            }
+        }
+
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/349/implement#comment
 status: Unchecked
 record: -1

@@ -1,27 +1,31 @@
 package server;
 
 
-import java.util.Scanner;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Main {
 
+    private static int PORT = 34500;
+
     public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(System.in);
-
-        boolean run = true;
-        String input = "";
-
-        while(run) {
-            input = scanner.nextLine();
-
-            if (input.equals("exit")) {
-                run = false;
-                break;
+        try (ServerSocket server = new ServerSocket(PORT)) {
+            while (true) {
+                try (
+                        Socket socket = server.accept();
+                        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                        ) {
+                    String message = inputStream.readUTF();
+                    outputStream.writeUTF(message);
+                }
             }
-            System.out.println(ClientInterface.getMethodFromInput(input));
 
-
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
