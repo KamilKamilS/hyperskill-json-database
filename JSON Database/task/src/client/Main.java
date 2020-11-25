@@ -2,29 +2,23 @@ package client;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import server.InputReader;
-import server.OutputWriter;
+import com.sun.source.tree.Scope;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
 public class Main {
 
-    private static Socket clientSocket;
     private static Message msg = new Message();
 
-    @Parameter(names = {"--type", "-t"})
-    String request;
-    @Parameter(names = {"--index", "-i"})
-    String index;
-    @Parameter(names = {"--modify", "-m"})
-    String data;
+    public static void main(String[] args) {
 
-    public static void main(final String[] args) {
+        String address = "127.0.0.1";
+        int port = 23456;
+        String answer;
 
 
         JCommander.newBuilder()
@@ -32,13 +26,9 @@ public class Main {
                 .build()
                 .parse(args);
 
-        run();
-    }
 
-    public static void run() {
-
-        createSocket();
         try (
+                Socket clientSocket = new Socket(InetAddress.getByName(address), port);
                 DataInputStream input = new DataInputStream(clientSocket.getInputStream());
                 DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream())
         ) {
@@ -58,35 +48,33 @@ public class Main {
             e.printStackTrace();
         }
 
-        closeSocket();
+//        closeSocket();
     }
 
 
-    /**
-     * Close the connection
-     */
-    private static void closeSocket() {
-        try {
-            clientSocket.close();
-        } catch (Exception ignored) {
-        }
-    }
+
+//    private static void closeSocket() {
+//        try {
+//            clientSocket.close();
+//        } catch (Exception ignored) {
+//        }
+//    }
 
 
     /**
      * Creating a socket to connect to the server
      */
-    private static void createSocket() {
-        final String address = "127.0.0.1";
-        final int port = 23456;
-        while (true) {
-            try {
-                clientSocket = new Socket(InetAddress.getByName(address), port);
-                return;
-            } catch (Exception e) {
-                System.out.println("\n" + e + "\n[CLIENT] Can't connect to the server");
-            }
-
-        }
-    }
+//    private static void createSocket() {
+//        final String address = "127.0.0.1";
+//        final int port = 23456;
+//        while (true) {
+//            try {
+//                clientSocket = new Socket(InetAddress.getByName(address), port);
+//                return;
+//            } catch (Exception e) {
+//                System.out.println("\n" + e + "\n[CLIENT] Can't connect to the server");
+//            }
+//
+//        }
+//    }
 }

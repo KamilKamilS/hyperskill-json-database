@@ -1,13 +1,11 @@
-server/InputReader.java
- server.InputReader
-server/ConnectionWorker.java
- server.ConnectionWorker
 client/Message.java
  client.Message
 server/Main.java
  server.Main
 server/Database.java
  server.Database
+server/MessageHandler.java
+ server.MessageHandler
 client/Main.java
  client.Main
 server/OutputWriter.java

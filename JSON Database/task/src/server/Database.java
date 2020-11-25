@@ -8,23 +8,13 @@ public class Database {
         this.array = new String[size];
     }
 
-    public boolean setData(int index, String data) {
-        if (index >= this.array.length) {
-            return false;
-        } else {
-            this.array[index] = data;
-            return true;
-        }
+    public void setData(int index, String data) {
+        this.array[index] = data;
     }
 
 
     public String getData(int index) {
-        System.out.println("got index:" + index);
-        if (index < 0 || index >= this.array.length) {
-            return "";
-        } else {
-            return this.array[index];
-        }
+        return this.array[index];
     }
 
 

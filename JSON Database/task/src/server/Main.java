@@ -1,86 +1,92 @@
 package server;
 
-
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Main {
+//    static String[] database = new String[1000];
+    static Database database;
 
-    private static final int SIZE = 100;
-    private static ServerSocket serverSocket;
-
-    public static void main(final String[] args) {
-
-        Database dataBase = new Database(SIZE);
-        greeting();
-        createServerSocket();
-        createClientSocket(dataBase);
-        closeSocket();
-    }
+    public static void main(String[] args) {
+        String address = "127.0.0.1";
+        int port = 23456;
+        String message;
+        database = new Database(1000);
+        MessageHandler msgHandler = new MessageHandler(database);
 
 
-    /**
-     * Say hello!
-     */
-    private static void greeting() {
-        System.out.println("Server started!");
-    }
+        try (
+                ServerSocket server = new ServerSocket(port, 50, InetAddress.getByName(address))
+        )
+        {
+            System.out.println("Server started!");
+            while (true) {
+                try (
+                        Socket socket = server.accept();
+                        DataInputStream input = new DataInputStream(socket.getInputStream());
+                        DataOutputStream output = new DataOutputStream(socket.getOutputStream()))
+                {
+                    message = input.readUTF();
+//                    System.out.println("Received: " + query);
 
-
-    /**
-     * Break connection.
-     */
-    private static void closeSocket() {
-        try {
-            serverSocket.close();
-        } catch (Exception ignored) {
-        }
-    }
-
-    /**
-     * Creating clients socket
-     * and provide connectivity
-     */
-    private static void createClientSocket(Database dataBase) {
-
-        //while (!isExit) {
-        while (!serverSocket.isClosed()) {
-            final Socket clientSocket = getConnection();
-            if (clientSocket != null)
-                new Thread(new ConnectionWorker(clientSocket, serverSocket, dataBase)).start();
-
-        }
-    }
-
-    /**
-     * Getting the socket connection to the client
-     *
-     * @return - Socket connection
-     */
-    private static Socket getConnection() {
-        try {
-            return serverSocket.accept();
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
-
-    /**
-     * Creating a ServerSocket object to connect clients to it
-     */
-    private static void createServerSocket() {
-        final String address = "127.0.0.1";
-        final int port = 23456;
-        while (true) {
-            try {
-                serverSocket = new ServerSocket(port, 50, InetAddress.getByName(address));
-                return;
-            } catch (Exception ignored) {
-                System.out.println("[SERVER] Can't create a socket!");
+                    String result = process(message);
+                    if (result.equals("EXIT")) {
+                        output.writeUTF("OK");
+                        System.exit(0);
+                    }
+//                    System.out.println("Sent: " + result);
+                    output.writeUTF(result);
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+
+    private static String process(String query) {
+        String result;
+        String[] queryParts = query.split("\\s+");
+        int index;
+
+        String command = queryParts[0];
+        if (command.equals("exit")) {
+            return "EXIT";
+        }
+
+        try {
+            index = Integer.parseInt(queryParts[1]);
+        } catch (Exception e)
+        {
+            return "ERROR";
+        }
+
+        if (index < 1 || index > database.array.length) { // Prevent OOB
+            return "ERROR";
+        } else {
+            index--; // Zero-base the index.
+        }
+
+        switch (command) {
+            case "set":
+                database.array[index] = String.join(" ", Arrays.copyOfRange(queryParts, 2, queryParts.length));
+                result = "OK";
+                break;
+            case "get":
+                result = database.array[index].equals("") ? "ERROR" : database.array[index];
+                break;
+            case "delete":
+                database.array[index] = "";
+                result = "OK";
+                break;
+            default:
+                result = "ERROR";
+        }
+
+        return result;
     }
 }

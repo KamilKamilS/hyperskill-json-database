@@ -658,5 +658,14 @@ files:
         }
   learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/351/implement#comment
-status: Unchecked
+status: Failed
+feedback:
+  message: "Exception in test #2\n\ncom.beust.jcommander.ParameterException: Was passed\
+    \ main parameter &#39;-k&#39; but no main parameter was defined in your arg class\n\
+    \tat com.beust.jcommander.JCommander.initMainParameterValue(JCommander.java:954)\n\
+    \tat com.beust.jcommander.JCommander.parseValues(JCommander.java:755)\n\tat com.beust.jcommander.JCommander.parse(JCommander.java:356)\n\
+    \tat com.beust.jcommander.JCommander.parse(JCommander.java:335)\n\tat client.Main.main(Main.java:28)\n\
+    \nPlease find below the output of your program during this failed test.\n\n---\n\
+    \nArguments for Main: -t get -k 1\n\nServer started!"
+  time: Wed, 25 Nov 2020 19:52:23 UTC
 record: 4

@@ -197,19 +197,28 @@ files:
 - name: src/server/OutputWriter.java
   visible: true
   learner_created: true
-- name: src/server/InputReader.java
-  visible: true
-  learner_created: true
-- name: src/server/ConnectionWorker.java
-  visible: true
-  learner_created: true
 - name: src/server/Database.java
   visible: true
   learner_created: true
+- name: src/server/MessageHandler.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/350/implement#comment
-status: Solved
+status: Failed
 feedback:
-  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/65/stages/350/implement">JetBrains
-    Academy</a>
-  time: Tue, 24 Nov 2020 23:40:33 UTC
+  message: |-
+    Wrong answer in test #2
+
+    When a client tries to get an empty cell from the server, the server should response with &#39;ERROR&#39; and the client should print that response
+
+    Please find below the output of your program during this failed test.
+
+    ---
+
+    Arguments for Main: -t get -i 1
+
+    Server started!
+    Client started!
+    Sent: get 1
+  time: Wed, 25 Nov 2020 23:14:47 UTC
 record: 3
