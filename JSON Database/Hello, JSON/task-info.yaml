@@ -373,6 +373,290 @@ files:
 
     }
   learner_created: false
+- name: src/server/ConnectionWorker.java
+  visible: true
+  text: |+
+    package server;
+
+
+    import java.io.IOException;
+    import java.net.ServerSocket;
+    import java.net.Socket;
+    import java.util.Objects;
+
+        /**
+         * In this class we provide processing of messages received by the server
+         */
+        public class ConnectionWorker implements Runnable {
+            private final InputReader inputReader;
+            private final OutputWriter outputWriter;
+            private final Socket socket;
+            private final ServerSocket serverSocket;
+            private static final boolean DEBUG_MODE = false;
+            private final Database dataBase;
+            private int index;
+            private String data;
+
+            /**
+             * Constructor of the message processing object
+             * @param socket - Socket, connection with client
+             * @param serverSocket - ServerSocket, connection or server
+             * @param dataBase - object, where data is stored
+             */
+            public ConnectionWorker(final Socket socket, ServerSocket serverSocket, Database dataBase) {
+                if (DEBUG_MODE) {
+                    System.out.println("Client connected!");
+                }
+                this.socket = socket;
+                this.serverSocket = serverSocket;
+                this.dataBase = dataBase;
+                this.inputReader = new InputReader(socket);
+                this.outputWriter = new OutputWriter(socket);
+            }
+
+            /**
+             * Get the query string and process it
+             * according to the condition.
+             */
+            @Override
+            public void run() {
+                String command;
+                do {
+                    final String rawMessage = inputReader.read().trim();
+
+                    command = getCommand(rawMessage);
+
+                    switch (command) {
+                        case "get":
+                            String result = dataBase.getData(index);
+                            outputWriter.sentMessage(Objects.requireNonNullElse(result, "ERROR"));
+                            break;
+                        case "set":
+                            outputWriter.sentMessage(dataBase.setData(index, data) ? "OK" : "ERROR");
+                            break;
+                        case "delete":
+                            outputWriter.sentMessage(dataBase.deleteData(index) ? "OK" : "ERROR");
+                            break;
+                        case "exit":
+                            outputWriter.sentMessage("OK");
+                            closeSocket();
+                            try {
+                                serverSocket.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                    }
+                } while (!command.equals("exit"));
+            }
+
+            /**
+             * Getting the command and data from raw request received from the client
+             * @param rawMessage - String, rew request from client
+             * @return - String, main command for database
+             */
+            public String getCommand(String rawMessage) {
+                String[] input = rawMessage.split(" ");
+                if (input.length > 1) {
+                    index = Integer.parseInt(input[1]) - 1;
+                }
+                if (input.length > 2) {
+                    data = input[2];
+                }
+                if (input.length > 3) {
+                    for (int i = 3; i < input.length; i++) {
+                        data = data.concat(" ").concat(input[i]);
+                    }
+                }
+                return input[0];
+            }
+
+            /**
+             * Break connection
+             */
+            private void closeSocket() {
+                try {
+                    socket.close();
+                } catch (Exception ignored) {
+                }
+            }
+
+        }
+
+  learner_created: true
+- name: src/server/Database.java
+  visible: true
+  text: |
+    package server;
+
+    public class Database {
+
+        String[] array;
+
+        public Database(int size) {
+            this.array = new String[size];
+        }
+
+        public boolean setData(int index, String data) {
+            if (index >= this.array.length) {
+                return false;
+            } else {
+                this.array[index] = data;
+                return true;
+            }
+        }
+
+
+        public String getData(int index) {
+            System.out.println("got index:" + index);
+            if (index < 0 || index >= this.array.length) {
+                return "";
+            } else {
+                return this.array[index];
+            }
+        }
+
+
+        public boolean deleteData(int index) {
+            if (index < 0 || index >= this.array.length) {
+                return false;
+            } else {
+                this.array[index] = null;
+                return true;
+            }
+        }
+    }
+  learner_created: true
+- name: src/server/InputReader.java
+  visible: true
+  text: |
+    package server;
+
+    import java.io.DataInputStream;
+    import java.io.EOFException;
+    import java.net.Socket;
+    import java.net.SocketException;
+
+    public class InputReader {
+
+        private final Socket socket;
+        private DataInputStream dataInputStream;
+
+        /**
+         * Constructor of the object for getting data from the socket
+         *
+         * @param socket - Socket, connection
+         */
+        public InputReader(final Socket socket) {
+            this.socket = socket;
+            createInputStream();
+        }
+
+        public String read() {
+            try {
+                return dataInputStream.readUTF();
+            } catch (EOFException | SocketException ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("[InputReader] can't read the message");
+            }
+            return "";
+        }
+
+        private void createInputStream() {
+            try {
+                dataInputStream = new DataInputStream(socket.getInputStream());
+            } catch (Exception e) {
+                System.out.println("[InputReader] can't create a input stream");
+            }
+
+        }
+    }
+  learner_created: true
+- name: src/client/Message.java
+  visible: true
+  text: |
+    package client;
+
+    import com.beust.jcommander.Parameter;
+
+    public class Message {
+
+        @Parameter(names = "-t")
+        private String type;
+
+        @Parameter(names = "-i")
+        private int index;
+
+        @Parameter(names = "-m")
+        private String content;
+
+
+        public Message() {
+            this.content = "";
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public String getContent() {
+            return content;
+        }
+    }
+  learner_created: true
+- name: src/server/OutputWriter.java
+  visible: true
+  text: |
+    package server;
+
+    import java.io.DataOutputStream;
+    import java.io.EOFException;
+    import java.net.Socket;
+    import java.net.SocketException;
+
+        /**
+         * In this class, we create an object for sending data in the connection
+         */
+        public class OutputWriter {
+            private final Socket socket;
+            private DataOutputStream dataOutputStream;
+
+
+            /**
+             * Constructor of the object for sending data to the socket
+             * @param socket - Socket, connection
+             */
+            public OutputWriter(final Socket socket) {
+                this.socket = socket;
+                createOutputStream();
+            }
+
+            public void sentMessage(final String message) {
+                try {
+                    dataOutputStream.writeUTF(message);
+                } catch (EOFException | SocketException ignored) {
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("[OutputWriter] can't write the message");
+                }
+            }
+
+            private void createOutputStream() {
+                try {
+                    dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                } catch (Exception e) {
+                    System.out.println("[outputWriter] can't create a output stream");
+                }
+
+            }
+
+        }
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/351/implement#comment
 status: Unchecked
-record: -1
+record: 4

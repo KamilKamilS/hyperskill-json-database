@@ -191,6 +191,25 @@ files:
         }
     }
   learner_created: false
+- name: src/client/Message.java
+  visible: true
+  learner_created: true
+- name: src/server/OutputWriter.java
+  visible: true
+  learner_created: true
+- name: src/server/InputReader.java
+  visible: true
+  learner_created: true
+- name: src/server/ConnectionWorker.java
+  visible: true
+  learner_created: true
+- name: src/server/Database.java
+  visible: true
+  learner_created: true
 feedback_link: https://hyperskill.org/projects/65/stages/350/implement#comment
-status: Unchecked
-record: -1
+status: Solved
+feedback:
+  message: Congratulations! Continue on <a href="https://hyperskill.org/projects/65/stages/350/implement">JetBrains
+    Academy</a>
+  time: Tue, 24 Nov 2020 23:40:33 UTC
+record: 3

@@ -1,41 +1,86 @@
 package server;
 
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Main {
 
-    private static int PORT = 34522;
-    private static String address = "127.0.0.1";
+    private static final int SIZE = 100;
+    private static ServerSocket serverSocket;
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
-        try (ServerSocket server = new ServerSocket(PORT,50, InetAddress.getByName(address))) {
-            System.out.println("Server started!");
-                try (
-                        Socket socket = server.accept();
-                        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-                        ) {
-                    String message = inputStream.readUTF();
-                    System.out.println("Recieved: " + message);
-                    String [] messageArray = message.split(" ");
-                    String outputMessage = "A record # 12 was sent!";
-
-                    outputStream.writeUTF(outputMessage);
-                    System.out.print("Sent: " + outputMessage);
-                }
+        Database dataBase = new Database(SIZE);
+        greeting();
+        createServerSocket();
+        createClientSocket(dataBase);
+        closeSocket();
+    }
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
+    /**
+     * Say hello!
+     */
+    private static void greeting() {
+        System.out.println("Server started!");
+    }
+
+
+    /**
+     * Break connection.
+     */
+    private static void closeSocket() {
+        try {
+            serverSocket.close();
+        } catch (Exception ignored) {
         }
+    }
 
+    /**
+     * Creating clients socket
+     * and provide connectivity
+     */
+    private static void createClientSocket(Database dataBase) {
+
+        //while (!isExit) {
+        while (!serverSocket.isClosed()) {
+            final Socket clientSocket = getConnection();
+            if (clientSocket != null)
+                new Thread(new ConnectionWorker(clientSocket, serverSocket, dataBase)).start();
+
+        }
+    }
+
+    /**
+     * Getting the socket connection to the client
+     *
+     * @return - Socket connection
+     */
+    private static Socket getConnection() {
+        try {
+            return serverSocket.accept();
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+
+    /**
+     * Creating a ServerSocket object to connect clients to it
+     */
+    private static void createServerSocket() {
+        final String address = "127.0.0.1";
+        final int port = 23456;
+        while (true) {
+            try {
+                serverSocket = new ServerSocket(port, 50, InetAddress.getByName(address));
+                return;
+            } catch (Exception ignored) {
+                System.out.println("[SERVER] Can't create a socket!");
+            }
+        }
     }
 }
-

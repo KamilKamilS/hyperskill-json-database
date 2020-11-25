@@ -1,10 +1,14 @@
+server/InputReader.java
+ server.InputReader
+server/ConnectionWorker.java
+ server.ConnectionWorker
+client/Message.java
+ client.Message
 server/Main.java
  server.Main
 server/Database.java
  server.Database
-server/DatabaseDao.java
- server.DatabaseDao
 client/Main.java
  client.Main
-server/ClientInterface.java
- server.ClientInterface
+server/OutputWriter.java
+ server.OutputWriter

@@ -1,36 +1,39 @@
 package server;
 
-
-import java.util.Objects;
-
 public class Database {
 
-    private static String[] database;
+    String[] array;
 
-    static {
-        database = new String[100];
+    public Database(int size) {
+        this.array = new String[size];
     }
 
-
-    public static void setMethod(int index, String content) {
-        database[index] = content;
-    }
-
-    public static String getMethod(int index) throws IllegalArgumentException {
-        if (checkIfEmpty(index)) {
-            throw new IllegalArgumentException();
+    public boolean setData(int index, String data) {
+        if (index >= this.array.length) {
+            return false;
         } else {
-            return database[index];
+            this.array[index] = data;
+            return true;
         }
     }
 
-    public static void deleteMethod(int index) {
-        database[index] = null;
+
+    public String getData(int index) {
+        System.out.println("got index:" + index);
+        if (index < 0 || index >= this.array.length) {
+            return "";
+        } else {
+            return this.array[index];
+        }
     }
 
-    private static boolean checkIfEmpty(int index) {
-        return Objects.equals(database[index], null);
+
+    public boolean deleteData(int index) {
+        if (index < 0 || index >= this.array.length) {
+            return false;
+        } else {
+            this.array[index] = null;
+            return true;
+        }
     }
-
-
 }

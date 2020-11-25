@@ -1,39 +1,92 @@
 package client;
 
-import server.ClientInterface;
-import server.DatabaseDao;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import server.InputReader;
+import server.OutputWriter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOError;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Main {
 
-    private static final String SERVER_ADDRESS = "127.0.0.1";
-    private static final int SERVER_PORT = 34522;
+    private static Socket clientSocket;
+    private static Message msg = new Message();
 
-    public static void main(String[] args) {
+    @Parameter(names = {"--type", "-t"})
+    String request;
+    @Parameter(names = {"--index", "-i"})
+    String index;
+    @Parameter(names = {"--modify", "-m"})
+    String data;
+
+    public static void main(final String[] args) {
+
+
+        JCommander.newBuilder()
+                .addObject(msg)
+                .build()
+                .parse(args);
+
+        run();
+    }
+
+    public static void run() {
+
+        createSocket();
         try (
-                Socket socket = new Socket(InetAddress.getByName(SERVER_ADDRESS), SERVER_PORT);
-                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-                ) {
-
+                DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+                DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream())
+        ) {
             System.out.println("Client started!");
-            String message = "Give me a record # 12";
 
-            outputStream.writeUTF(message);
-            System.out.println("Sent: " + message);
-            String recievedMessage = inputStream.readUTF();
+            // Sending a request to the server
+            final String message = String.format("%s %s %s", msg.getType(), msg.getIndex(), msg.getContent());
 
-            System.out.println("Received: " + recievedMessage);
+            System.out.println("Sent: " + message.trim());
+            output.writeUTF(message);
+
+            // Getting answer from server
+            String receivedMessage = input.readUTF();
+            System.out.println("Received: " + receivedMessage);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        closeSocket();
+    }
+
+
+    /**
+     * Close the connection
+     */
+    private static void closeSocket() {
+        try {
+            clientSocket.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+
+    /**
+     * Creating a socket to connect to the server
+     */
+    private static void createSocket() {
+        final String address = "127.0.0.1";
+        final int port = 23456;
+        while (true) {
+            try {
+                clientSocket = new Socket(InetAddress.getByName(address), port);
+                return;
+            } catch (Exception e) {
+                System.out.println("\n" + e + "\n[CLIENT] Can't connect to the server");
+            }
+
+        }
     }
 }
